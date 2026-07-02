@@ -25,6 +25,9 @@ export default function LoginPage() {
             <Link className="font-semibold text-cyan-200 hover:text-white" href="/display">
               Màn hình trình chiếu
             </Link>
+            <Link className="font-semibold text-cyan-200 hover:text-white" href="/gallery">
+              Gallery sản phẩm
+            </Link>
           </div>
         </div>
         <div className="px-6 py-8 md:px-10 md:py-12">

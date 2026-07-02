@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { authenticateTeam } from "@/lib/game";
-import { clearTeamSession, setTeamSession } from "@/lib/security/session";
+import { authenticateTeam, clearActiveTeamSession } from "@/lib/game";
+import { clearTeamSession, getTeamSession, setTeamSession } from "@/lib/security/session";
 import { teamLoginSchema } from "@/lib/schemas";
 
 export type LoginState = {
@@ -32,11 +32,21 @@ export async function loginTeamAction(
     };
   }
 
-  await setTeamSession(session.teamUuid, session.seasonId);
+  if ("error" in session && session.error === "active_elsewhere") {
+    return {
+      error: "Đội này đang đăng nhập ở thiết bị khác. Hãy bấm Thoát ở thiết bị cũ hoặc báo giáo viên mở khóa."
+    };
+  }
+
+  await setTeamSession(session.teamUuid, session.seasonId, session.sessionToken);
   redirect("/play");
 }
 
 export async function logoutTeamAction() {
+  const session = await getTeamSession();
+  if (session) {
+    await clearActiveTeamSession(session.teamUuid, session.seasonId, session.sessionToken);
+  }
   await clearTeamSession();
   redirect("/login");
 }

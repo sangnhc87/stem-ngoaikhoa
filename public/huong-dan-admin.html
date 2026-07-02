@@ -573,6 +573,23 @@
               2. Nhập Dữ Liệu CSV
             </a>
           </li>
+          <li class="nav-item" data-target="math-ai-packs">
+            <a href="#math-ai-packs">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"></path>
+              </svg>
+              Bộ Đề Toán AI
+            </a>
+          </li>
+          <li class="nav-item" data-target="team-security">
+            <a href="#team-security">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"></path>
+              </svg>
+              Mật Khẩu & 1 Thiết Bị
+            </a>
+          </li>
           <li class="nav-item" data-target="run-contest">
             <a href="#run-contest">
               <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -588,6 +605,15 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
               </svg>
               Khắc Phục Sự Cố
+            </a>
+          </li>
+          <li class="nav-item" data-target="ai-maintenance">
+            <a href="#ai-maintenance">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 16v-2m8-6h2M2 12h2m13.657-5.657l1.414-1.414M4.929 19.071l1.414-1.414m0-11.314L4.929 4.929m14.142 14.142l-1.414-1.414"></path>
+                <circle cx="12" cy="12" r="4"></circle>
+              </svg>
+              Ghi Chú Cho AI
             </a>
           </li>
         </ul>
@@ -783,6 +809,150 @@ f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T02,1,KHOA-RIENG-T02-C1</pre>
       </div>
     </section>
 
+    <!-- SECTION: Math AI Packs -->
+    <section id="math-ai-packs" class="section-content">
+      <h2>Bộ Đề Toán AI Có Sẵn</h2>
+      <p>Hai bộ đề hiện nằm trong thư mục <code>de-thi/</code> của dự án. Đây là dữ liệu nguồn, không tự hiện trên trang admin cho đến khi thầy/cô chạy script sinh CSV rồi import vào mùa thi.</p>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">Bộ 1: Toán AI Quest 01</div>
+          <p>Bộ khởi động, vừa sức, phù hợp lần tổ chức đầu tiên hoặc khối chưa quen dùng AI trong học tập.</p>
+          <p><strong>Thư mục:</strong> <code>de-thi/toan-ai-quest-01/</code></p>
+          <p><strong>Xem đề:</strong> <code>de-thi/toan-ai-quest-01/DE_BAI.md</code></p>
+          <p><strong>Đáp án:</strong> <code>de-thi/toan-ai-quest-01/DAP_AN_VA_GIAI_THICH.md</code></p>
+          <p><strong>Script:</strong> <code>scripts/generate-math-ai-season.ts</code></p>
+        </div>
+        <div class="card">
+          <div class="card-title">Bộ 2: Toán AI Quest 02 - Omega 2.1</div>
+          <p>Bộ khó hơn, sâu hơn, phù hợp ngoại khóa toàn trường 120 phút. Có file đáp án và giải thích cho BTC.</p>
+          <p><strong>Thư mục:</strong> <code>de-thi/toan-ai-quest-02/</code></p>
+          <p><strong>Xem đề:</strong> <code>de-thi/toan-ai-quest-02/DE_BAI.md</code></p>
+          <p><strong>Đáp án:</strong> <code>de-thi/toan-ai-quest-02/DAP_AN_VA_GIAI_THICH.md</code></p>
+        </div>
+        <div class="card">
+          <div class="card-title">Bộ 3: Toán AI Quest 03 - Nexus</div>
+          <p>Bộ signature đa lĩnh vực: dữ liệu, mật mã, tối ưu, đồ thị, xác suất, hình học, AI literacy và mô hình hóa.</p>
+          <p><strong>Thư mục:</strong> <code>de-thi/toan-ai-quest-03/</code></p>
+          <p><strong>Xem đề:</strong> <code>de-thi/toan-ai-quest-03/DE_BAI.md</code></p>
+          <p><strong>Đáp án:</strong> <code>de-thi/toan-ai-quest-03/DAP_AN_VA_GIAI_THICH.md</code></p>
+        </div>
+        <div class="card">
+          <div class="card-title">Bộ 4: AI Math Maker Quest</div>
+          <p>Bộ hybrid: 20 cửa Toán-AI, 5 cửa phản biện AI, 5 cửa tạo sản phẩm. Sản phẩm của học sinh được lưu vào Gallery.</p>
+          <p><strong>Thư mục:</strong> <code>de-thi/toan-ai-quest-04/</code></p>
+          <p><strong>Xem đề:</strong> <code>de-thi/toan-ai-quest-04/DE_BAI.md</code></p>
+          <p><strong>Đáp án:</strong> <code>de-thi/toan-ai-quest-04/DAP_AN_VA_GIAI_THICH.md</code></p>
+        </div>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-content">
+          <h4>Danh sách 48 lớp mẫu của trường</h4>
+          <p>Bộ 2 đã có sẵn danh sách <code>10A1-10A16</code>, <code>11B1-11B16</code>, <code>12C1-12C16</code> trong file <code>de-thi/toan-ai-quest-02/classes.example.txt</code>.</p>
+        </div>
+      </div>
+
+      <h3 style="margin: 2rem 0 1rem 0; color: #ffffff;">Lệnh sinh CSV bộ 2 cho 48 lớp</h3>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="btn-copy" onclick="copyText('code-math-ai-02')">Copy</button>
+        </div>
+        <pre id="code-math-ai-02">pnpm tsx scripts/generate-math-ai-season-02.ts \
+  --season &lt;SEASON_ID&gt; \
+  --classes de-thi/toan-ai-quest-02/classes.example.txt \
+  --out tmp/math-ai-quest-02</pre>
+      </div>
+
+      <h3 style="margin: 2rem 0 1rem 0; color: #ffffff;">Lệnh sinh CSV bộ 3 cho 48 lớp</h3>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="btn-copy" onclick="copyText('code-math-ai-03')">Copy</button>
+        </div>
+        <pre id="code-math-ai-03">pnpm tsx scripts/generate-math-ai-season-03.ts \
+  --season &lt;SEASON_ID&gt; \
+  --classes de-thi/toan-ai-quest-03/classes.example.txt \
+  --out tmp/math-ai-quest-03</pre>
+      </div>
+
+      <h3 style="margin: 2rem 0 1rem 0; color: #ffffff;">Lệnh sinh CSV bộ 4 Product Quest</h3>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="btn-copy" onclick="copyText('code-math-ai-04')">Copy</button>
+        </div>
+        <pre id="code-math-ai-04">pnpm tsx scripts/generate-math-ai-season-04.ts \
+  --season &lt;SEASON_ID&gt; \
+  --classes de-thi/toan-ai-quest-04/classes.example.txt \
+  --out tmp/math-ai-quest-04</pre>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-content">
+          <h4>Gallery sản phẩm</h4>
+          <p>Khi dùng bộ 4, các cửa sản phẩm sẽ hiện form nộp sản phẩm trong trang đội. Sản phẩm được xem tại <code>/gallery</code> để lưu lại thành thư viện học tập của trường.</p>
+        </div>
+      </div>
+
+      <p>Sau khi chạy lệnh, import 3 file theo đúng thứ tự:</p>
+      <ol style="color: var(--text-muted); line-height: 1.8; margin-left: 1.25rem;">
+        <li><code>tmp/math-ai-quest-02/teams.csv</code></li>
+        <li><code>tmp/math-ai-quest-02/challenges.csv</code></li>
+        <li><code>tmp/math-ai-quest-02/answers.csv</code></li>
+      </ol>
+
+      <div class="callout warning">
+        <div class="callout-content">
+          <h4>Quan trọng về mật khẩu lớp</h4>
+          <p>Nếu file lớp chỉ có mã lớp như <code>10A1</code>, hệ thống tự tạo mật khẩu dạng <code>pass10A1</code>. Nếu muốn đặt mật khẩu riêng, mỗi dòng ghi: <code>10A1,Đội 10A1,MatKhauRieng</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Team Security -->
+    <section id="team-security" class="section-content">
+      <h2>Mật Khẩu Lớp & Chặn 2 Thiết Bị</h2>
+      <p>Mỗi lớp là một đội, có một mã đội và một mật khẩu riêng trong file <code>teams.csv</code>. Khi import, mật khẩu thô được hệ thống mã hóa trước khi lưu vào Supabase.</p>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">Cách cấp tài khoản cho lớp</div>
+        <p>Với bộ 2, file lớp mẫu sinh ra tài khoản như sau:</p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>Ví dụ tài khoản</span>
+          </div>
+          <pre>10A1 / pass10A1
+10A16 / pass10A16
+11B1 / pass11B1
+12C16 / pass12C16</pre>
+        </div>
+        <p>Thầy/cô có thể đổi mật khẩu bằng cách sửa file <code>classes.example.txt</code> trước khi sinh CSV.</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">Cơ chế một đội một thiết bị</div>
+        <p>Khi một đội đăng nhập thành công, hệ thống ghi một phiên đăng nhập vào bảng <code>teams</code>. Nếu thiết bị thứ hai dùng cùng mã đội/mật khẩu, hệ thống báo lỗi đội đang đăng nhập ở thiết bị khác.</p>
+        <p>Khi đội bấm <strong>Thoát</strong>, phiên được giải phóng và đội có thể đăng nhập lại ở thiết bị khác.</p>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-content">
+          <h4>Nếu học sinh đóng tab hoặc tắt máy không bấm Thoát</h4>
+          <p>Vào trang <code>/admin</code>, trong bảng đội bấm nút <strong>Mở khóa</strong> ở dòng đội đó. Reset mùa thi cũng tự xóa toàn bộ phiên đăng nhập đang giữ.</p>
+        </div>
+      </div>
+
+      <p>Để dùng tính năng này trên Supabase, nhớ chạy migration mới:</p>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span>SQL migration</span>
+        </div>
+        <pre>supabase/migrations/20260704000001_team_single_session.sql</pre>
+      </div>
+    </section>
+
     <!-- SECTION: Run Contest -->
     <section id="run-contest" class="section-content">
       <h2>Bước 3: Vận Hành Ngày Thi</h2>
@@ -858,6 +1028,35 @@ f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T02,1,KHOA-RIENG-T02-C1</pre>
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <!-- SECTION: AI Maintenance -->
+    <section id="ai-maintenance" class="section-content">
+      <h2>Ghi Chú Cho AI / Model Khác Tiếp Tục Dự Án</h2>
+      <p>Khi nhờ model AI khác phát triển tiếp, hãy yêu cầu model đọc file <code>AI_DEVELOPMENT_GUIDE.md</code> trước. File đó tóm tắt kiến trúc, quy tắc không phá UI, cách tạo đề, cách sinh CSV và các kiểm tra bắt buộc.</p>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span>Prompt gợi ý</span>
+          <button class="btn-copy" onclick="copyText('code-ai-prompt')">Copy</button>
+        </div>
+        <pre id="code-ai-prompt">Bạn đang phát triển tiếp dự án AI Quest Engine.
+Trước khi sửa code, hãy đọc:
+- AI_DEVELOPMENT_GUIDE.md
+- CHAY_HE_THONG.md
+- de-thi/toan-ai-quest-02/README.md
+- de-thi/toan-ai-quest-02/DAP_AN_VA_GIAI_THICH.md
+
+Không được xóa tính năng hiện có, không đổi format CSV nếu chưa cập nhật importer, và sau khi sửa phải chạy pnpm lint + pnpm typecheck + pnpm build.</pre>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-content">
+          <h4>Nguyên tắc ra đề Toán AI</h4>
+          <p>Đề phải cho phép dùng AI thoải mái, nhưng yêu cầu học sinh kiểm chứng, phản biện, mô hình hóa hoặc ra quyết định. Tránh câu hỏi chỉ cần hỏi AI một lần là ra đáp án.</p>
+          <p>Vì có thể thi chung khối 10, 11, 12, không dùng kiến thức vượt tầm khối 10-11 như xác suất có điều kiện, Bayes, định thức/ma trận hoặc giải tích nặng nếu đề không tự cung cấp hướng dẫn khám phá ngay trong câu.</p>
+        </div>
+      </div>
     </section>
   </main>
 

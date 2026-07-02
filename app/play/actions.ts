@@ -3,11 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTeamSession } from "@/lib/security/session";
-import { keySubmitSchema } from "@/lib/schemas";
-import { submitKeyAttempt } from "@/lib/game";
+import { keySubmitSchema, productSubmissionSchema } from "@/lib/schemas";
+import { getTeamContext, submitKeyAttempt } from "@/lib/game";
+import { upsertProductSubmission } from "@/lib/products";
 
 export type SubmitKeyState = {
   result?: "correct" | "wrong" | "closed" | "invalid" | "rate_limited";
+  message?: string;
+};
+
+export type SubmitProductState = {
+  ok?: boolean;
   message?: string;
 };
 
@@ -26,6 +32,11 @@ export async function submitKeyAction(
   const session = await getTeamSession();
 
   if (!session) {
+    redirect("/login");
+  }
+
+  const context = await getTeamContext(session.teamUuid, session.seasonId, session.sessionToken);
+  if (!context) {
     redirect("/login");
   }
 
@@ -48,5 +59,58 @@ export async function submitKeyAction(
   return {
     result: result.result,
     message: result.message || messageByResult[result.result]
+  };
+}
+
+export async function submitProductAction(
+  _previousState: SubmitProductState,
+  formData: FormData
+): Promise<SubmitProductState> {
+  const session = await getTeamSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const context = await getTeamContext(session.teamUuid, session.seasonId, session.sessionToken);
+  if (!context || !context.challenge) {
+    return {
+      ok: false,
+      message: "Không tìm thấy cửa hiện tại để nộp sản phẩm."
+    };
+  }
+
+  const parsed = productSubmissionSchema.safeParse({
+    title: formData.get("title"),
+    product_url: formData.get("product_url"),
+    description: formData.get("description"),
+    prompt: formData.get("prompt"),
+    verification: formData.get("verification")
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: parsed.error.issues[0]?.message ?? "Thông tin sản phẩm chưa hợp lệ."
+    };
+  }
+
+  await upsertProductSubmission({
+    seasonId: context.season.id,
+    teamId: context.team.team_id,
+    door: context.challenge.door,
+    title: parsed.data.title,
+    productUrl: parsed.data.product_url || undefined,
+    description: parsed.data.description,
+    prompt: parsed.data.prompt || undefined,
+    verification: parsed.data.verification || undefined
+  });
+
+  revalidatePath("/play");
+  revalidatePath("/gallery");
+
+  return {
+    ok: true,
+    message: "Đã lưu sản phẩm của đội. Có thể cập nhật lại nếu cần."
   };
 }

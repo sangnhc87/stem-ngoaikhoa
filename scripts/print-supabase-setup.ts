@@ -1,31 +1,47 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-const migrationPath = "supabase/migrations/20260702000000_initial_schema.sql";
-const absoluteMigrationPath = resolve(process.cwd(), migrationPath);
+const migrationsDir = "supabase/migrations";
+const absoluteMigrationsDir = resolve(process.cwd(), migrationsDir);
+
+function getMigrationPaths() {
+  if (!existsSync(absoluteMigrationsDir)) {
+    console.error(`KHONG TIM THAY thu muc migration: ${migrationsDir}`);
+    process.exit(1);
+  }
+
+  return readdirSync(absoluteMigrationsDir)
+    .filter((file) => file.endsWith(".sql"))
+    .sort()
+    .map((file) => `${migrationsDir}/${file}`);
+}
 
 function main() {
   console.log("\n=== Cai dat Supabase cho AI Quest Engine ===\n");
 
-  if (!existsSync(absoluteMigrationPath)) {
-    console.error(`KHONG TIM THAY migration: ${migrationPath}`);
+  const migrationPaths = getMigrationPaths();
+
+  if (migrationPaths.length === 0) {
+    console.error(`KHONG CO file SQL nao trong ${migrationsDir}`);
     process.exit(1);
   }
 
-  console.log("File SQL can copy vao Supabase SQL Editor:");
-  console.log(`  ${migrationPath}`);
-  console.log(`  ${absoluteMigrationPath}`);
+  console.log("Cac file SQL can copy vao Supabase SQL Editor theo dung thu tu:");
+  for (const migrationPath of migrationPaths) {
+    console.log(`  - ${migrationPath}`);
+    console.log(`    ${resolve(process.cwd(), migrationPath)}`);
+  }
 
   console.log("\nCac buoc thuc hien:");
   console.log("1. Mo https://supabase.com va vao project cua thay/co.");
   console.log("2. Vao SQL Editor.");
   console.log("3. Bam New Query.");
-  console.log(`4. Mo file ${migrationPath} trong repo nay.`);
+  console.log("4. Mo tung file SQL trong danh sach tren, theo dung thu tu ten file.");
   console.log("5. Copy toan bo noi dung file SQL.");
   console.log("6. Dan vao Supabase SQL Editor.");
-  console.log("7. Bam Run.");
+  console.log("7. Bam Run. Lap lai cho den het cac file migration.");
   console.log("8. Neu thanh cong, Supabase se co cac bang:");
-  console.log("   seasons, teams, challenges, answers, submissions, files");
+  console.log("   seasons, teams, challenges, answers, submissions, files, announcements");
   console.log("9. Bucket Storage mac dinh se la: challenge-files");
 
   console.log("\nSau khi chay SQL:");

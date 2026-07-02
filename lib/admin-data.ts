@@ -44,7 +44,7 @@ export async function getAdminDashboardData(selectedSeasonId?: string): Promise<
     supabase
       .from("teams")
       .select(
-        "id, season_id, team_id, team_name, current_door, solved, wrong_count, last_pass_time, created_at"
+        "id, season_id, team_id, team_name, current_door, solved, wrong_count, last_pass_time, active_session_token, active_session_at, created_at"
       )
       .eq("season_id", selectedSeason.id)
       .order("team_id", { ascending: true }),
@@ -62,7 +62,7 @@ export async function getAdminDashboardData(selectedSeasonId?: string): Promise<
     supabase
       .from("teams")
       .select(
-        "id, season_id, team_id, team_name, current_door, solved, wrong_count, last_pass_time, created_at"
+        "id, season_id, team_id, team_name, current_door, solved, wrong_count, last_pass_time, active_session_token, active_session_at, created_at"
       )
       .eq("season_id", selectedSeason.id)
       .order("wrong_count", { ascending: false })

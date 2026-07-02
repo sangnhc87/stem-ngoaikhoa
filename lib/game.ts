@@ -1,10 +1,13 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
 import { headers } from "next/headers";
 import { getServerEnv } from "@/lib/env";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { hashAnswerKey, hashIpAddress, verifyPassword } from "@/lib/security/hash";
 import type { Challenge, Season, Team } from "@/lib/types";
+
+const TEAM_SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 export type TeamContext = {
   season: Season;
@@ -84,9 +87,42 @@ export async function authenticateTeam(teamId: string, password: string) {
 
   for (const team of sorted) {
     if (await verifyPassword(password, team.password_hash)) {
+      const { data: currentTeam } = await supabase
+        .from("teams")
+        .select("active_session_token, active_session_at")
+        .eq("id", team.id)
+        .maybeSingle<{ active_session_token: string | null; active_session_at: string | null }>();
+
+      const activeAt = currentTeam?.active_session_at
+        ? new Date(currentTeam.active_session_at).getTime()
+        : 0;
+      const isActiveElsewhere =
+        Boolean(currentTeam?.active_session_token) &&
+        activeAt > Date.now() - TEAM_SESSION_MAX_AGE_MS;
+
+      if (isActiveElsewhere) {
+        return {
+          error: "active_elsewhere" as const
+        };
+      }
+
+      const sessionToken = randomUUID();
+      const { error: sessionError } = await supabase
+        .from("teams")
+        .update({
+          active_session_token: sessionToken,
+          active_session_at: new Date().toISOString()
+        })
+        .eq("id", team.id);
+
+      if (sessionError) {
+        throw new Error(sessionError.message);
+      }
+
       return {
         teamUuid: team.id,
-        seasonId: team.season_id
+        seasonId: team.season_id,
+        sessionToken
       };
     }
   }
@@ -96,7 +132,8 @@ export async function authenticateTeam(teamId: string, password: string) {
 
 export async function getTeamContext(
   teamUuid: string,
-  sessionSeasonId: string
+  sessionSeasonId: string,
+  sessionToken?: string
 ): Promise<TeamContext | null> {
   const supabase = getSupabaseAdmin();
   const { data: team, error: teamError } = await supabase
@@ -107,6 +144,10 @@ export async function getTeamContext(
     .maybeSingle<Team>();
 
   if (teamError || !team) {
+    return null;
+  }
+
+  if (sessionToken && team.active_session_token !== sessionToken) {
     return null;
   }
 
@@ -134,6 +175,23 @@ export async function getTeamContext(
     challenge: challenge ?? null,
     totalDoors: count ?? 0
   };
+}
+
+export async function clearActiveTeamSession(
+  teamUuid: string,
+  sessionSeasonId: string,
+  sessionToken: string
+) {
+  const supabase = getSupabaseAdmin();
+  await supabase
+    .from("teams")
+    .update({
+      active_session_token: null,
+      active_session_at: null
+    })
+    .eq("id", teamUuid)
+    .eq("season_id", sessionSeasonId)
+    .eq("active_session_token", sessionToken);
 }
 
 export async function getRequestFingerprint() {

@@ -21,6 +21,8 @@ export type Team = {
   solved: number;
   wrong_count: number;
   last_pass_time: string | null;
+  active_session_token: string | null;
+  active_session_at: string | null;
   created_at: string;
 };
 
@@ -47,6 +49,22 @@ export type Submission = {
   user_agent: string | null;
   ip_hash: string | null;
   created_at: string;
+};
+
+export type ProductSubmission = {
+  id: string;
+  season_id: string;
+  team_id: string;
+  door: number;
+  title: string;
+  product_url: string | null;
+  description: string;
+  prompt: string | null;
+  verification: string | null;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+  team_name?: string | null;
 };
 
 export type LeaderboardTeam = {

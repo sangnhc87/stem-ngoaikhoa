@@ -22,6 +22,7 @@ import {
   createTeamAction,
   deactivateAnnouncementAction,
   resetSeasonAction,
+  unlockTeamSessionAction,
   updateSeasonStatusAction,
   uploadChallengeFileAction
 } from "@/app/admin/actions";
@@ -42,6 +43,7 @@ const noticeText: Record<string, string> = {
   "team-created": "Đã tạo đội.",
   "team-invalid": "Thông tin đội chưa hợp lệ.",
   "team-duplicate": "Mã đội đã tồn tại trong mùa này.",
+  "team-unlocked": "Đã mở khóa phiên đăng nhập của đội.",
   "challenge-created": "Đã tạo thử thách.",
   "challenge-invalid": "Thông tin thử thách chưa hợp lệ.",
   "challenge-duplicate": "Số cửa đã tồn tại trong mùa này.",
@@ -155,6 +157,13 @@ export default async function AdminPage({
             >
               <RadioTower size={17} aria-hidden="true" />
               Bảng xếp hạng
+            </Link>
+            <Link
+              href="/gallery"
+              className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel"
+            >
+              <Monitor size={17} aria-hidden="true" />
+              Gallery
             </Link>
             <form action={adminLogoutAction}>
               <button className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel">
@@ -392,6 +401,7 @@ export default async function AdminPage({
                             <th className="px-3 py-2">Đội</th>
                             <th className="px-3 py-2">Giải</th>
                             <th className="px-3 py-2">Sai</th>
+                            <th className="px-3 py-2">Phiên</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -401,6 +411,19 @@ export default async function AdminPage({
                               <td className="px-3 py-2">{team.team_name}</td>
                               <td className="px-3 py-2">{team.solved}</td>
                               <td className="px-3 py-2 text-warning">{team.wrong_count}</td>
+                              <td className="px-3 py-2">
+                                {team.active_session_token ? (
+                                  <form action={unlockTeamSessionAction}>
+                                    <input type="hidden" name="season_id" value={selectedSeason.id} />
+                                    <input type="hidden" name="team_id" value={team.team_id} />
+                                    <button className="focus-ring rounded-md border border-line bg-white px-2 py-1 text-xs font-semibold text-ink hover:bg-panel">
+                                      Mở khóa
+                                    </button>
+                                  </form>
+                                ) : (
+                                  <span className="text-xs text-slate-400">Trống</span>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>

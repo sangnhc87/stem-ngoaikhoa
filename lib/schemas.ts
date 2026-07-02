@@ -13,6 +13,23 @@ export const keySubmitSchema = z.object({
     .max(200, "Khóa quá dài.")
 });
 
+export const productSubmissionSchema = z.object({
+  title: z.string().trim().min(3, "Nhập tên sản phẩm.").max(160, "Tên sản phẩm quá dài."),
+  product_url: z
+    .string()
+    .trim()
+    .url("Link sản phẩm chưa đúng định dạng.")
+    .optional()
+    .or(z.literal("")),
+  description: z
+    .string()
+    .trim()
+    .min(20, "Mô tả sản phẩm cần rõ hơn.")
+    .max(2000, "Mô tả sản phẩm quá dài."),
+  prompt: z.string().trim().max(2000, "Prompt quá dài.").optional().or(z.literal("")),
+  verification: z.string().trim().max(2000, "Phần kiểm chứng quá dài.").optional().or(z.literal(""))
+});
+
 export const adminLoginSchema = z.object({
   password: z.string().min(1, "Nhập mật khẩu quản trị.")
 });

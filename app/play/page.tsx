@@ -9,6 +9,7 @@ import { statusLabel } from "@/lib/format";
 import { getActiveAnnouncements } from "@/lib/announcements";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { CountdownTimer } from "@/components/countdown-timer";
+import { ProductForm } from "@/app/play/product-form";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function PlayPage() {
     redirect("/login");
   }
 
-  const context = await getTeamContext(session.teamUuid, session.seasonId);
+  const context = await getTeamContext(session.teamUuid, session.seasonId, session.sessionToken);
 
   if (!context) {
     redirect("/login");
@@ -29,6 +30,12 @@ export default async function PlayPage() {
   const isOpen = season.status === "OPEN";
   const completed = totalDoors > 0 && team.current_door > totalDoors;
   const canSubmit = isOpen && Boolean(challenge) && !completed;
+  const isProductDoor = Boolean(
+    challenge &&
+      /sản phẩm|san pham|product|maker|gallery/i.test(
+        `${challenge.module ?? ""} ${challenge.title} ${challenge.mission}`
+      )
+  );
 
   const announcements = await getActiveAnnouncements(season.id);
 
@@ -116,6 +123,18 @@ export default async function PlayPage() {
                 </a>
               ) : null}
             </div>
+
+            {isProductDoor ? (
+              <div className="mt-5 rounded-lg border border-circuit/20 bg-circuit/5 p-5">
+                <p className="text-sm font-bold uppercase tracking-[0.12em] text-circuit">
+                  Nộp sản phẩm học tập
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Lưu lại sản phẩm, prompt và cách kiểm chứng của đội để trưng bày trong Gallery.
+                </p>
+                <ProductForm />
+              </div>
+            ) : null}
           </div>
 
           <aside className="rounded-xl border border-line bg-white p-6 shadow-soft">
@@ -158,6 +177,15 @@ export default async function PlayPage() {
               >
                 <Monitor size={15} aria-hidden="true" />
                 Màn hình chiếu
+              </a>
+              <a
+                href="/gallery"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="focus-ring flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm font-semibold text-ink hover:bg-panel"
+              >
+                <Monitor size={15} aria-hidden="true" />
+                Gallery sản phẩm
               </a>
             </div>
           </aside>

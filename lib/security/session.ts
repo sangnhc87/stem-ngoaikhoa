@@ -13,6 +13,7 @@ export type TeamSession = {
   kind: "team";
   teamUuid: string;
   seasonId: string;
+  sessionToken: string;
   exp: number;
 };
 
@@ -87,9 +88,9 @@ function cookieOptions(maxAge: number) {
   };
 }
 
-export async function setTeamSession(teamUuid: string, seasonId: string) {
+export async function setTeamSession(teamUuid: string, seasonId: string, sessionToken: string) {
   const exp = Math.floor(Date.now() / 1000) + TEAM_MAX_AGE;
-  const token = signPayload({ kind: "team", teamUuid, seasonId, exp });
+  const token = signPayload({ kind: "team", teamUuid, seasonId, sessionToken, exp });
   const cookieStore = await cookies();
   cookieStore.set(TEAM_COOKIE, token, cookieOptions(TEAM_MAX_AGE));
 }

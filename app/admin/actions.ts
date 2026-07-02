@@ -295,7 +295,9 @@ export async function resetSeasonAction(formData: FormData) {
       current_door: 1,
       solved: 0,
       wrong_count: 0,
-      last_pass_time: null
+      last_pass_time: null,
+      active_session_token: null,
+      active_session_at: null
     })
     .eq("season_id", seasonId);
 
@@ -307,6 +309,34 @@ export async function resetSeasonAction(formData: FormData) {
 
   revalidatePath("/admin");
   redirectToAdmin(seasonId, "season-reset");
+}
+
+export async function unlockTeamSessionAction(formData: FormData) {
+  await requireAdmin();
+  const seasonId = String(formData.get("season_id") ?? "");
+  const teamId = String(formData.get("team_id") ?? "");
+  const parsedSeasonId = uuidSchema.safeParse(seasonId);
+
+  if (!parsedSeasonId.success || !teamId) {
+    redirectToAdmin(seasonId, "team-invalid");
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("teams")
+    .update({
+      active_session_token: null,
+      active_session_at: null
+    })
+    .eq("season_id", seasonId)
+    .eq("team_id", teamId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  redirectToAdmin(seasonId, "team-unlocked");
 }
 
 export async function importCsvAction(
