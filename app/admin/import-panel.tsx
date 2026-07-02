@@ -19,8 +19,29 @@ const columnsByType: Record<ImportType, string> = {
   answers: "season_id,team_id,door,key"
 };
 
-export function ImportPanel({ type }: { type: ImportType }) {
+export function ImportPanel({ type, seasonId }: { type: ImportType; seasonId?: string }) {
   const [state, formAction, pending] = useActionState(importCsvAction, initialState);
+
+  const downloadTemplate = () => {
+    const sId = seasonId || "f853dea1-4161-44f9-9b27-b1bf48a4ce4c";
+    let content = columnsByType[type] + "\n";
+    if (type === "teams") {
+      content += `${sId},T01,Doi Sao Vang,123456\n${sId},T02,Doi Kim Dong,123456`;
+    } else if (type === "challenges") {
+      content += `${sId},1,Khoi dong he thong,Giai ma thong diep an o duoi gam ban,,1,Khoi dong,false\n${sId},2,Cua logic robot,Tim to hop bit 1 va 0 de bat den xanh,,2,Logic,false`;
+    } else if (type === "answers") {
+      content += `${sId},T01,1,KHOA-RIENG-T01-C1\n${sId},T02,1,KHOA-RIENG-T02-C1`;
+    }
+
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `template_${type}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <section className="rounded-xl border border-line bg-white p-5 shadow-sm">
@@ -44,7 +65,14 @@ export function ImportPanel({ type }: { type: ImportType }) {
         />
         <div className="flex flex-wrap gap-2">
           <button
-            className="focus-ring rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel disabled:opacity-60"
+            type="button"
+            onClick={downloadTemplate}
+            className="focus-ring rounded-lg border border-line bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Tải mẫu
+          </button>
+          <button
+            className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-panel disabled:opacity-60"
             name="mode"
             value="preview"
             disabled={pending}
@@ -52,13 +80,13 @@ export function ImportPanel({ type }: { type: ImportType }) {
             Xem trước
           </button>
           <button
-            className="focus-ring inline-flex items-center gap-2 rounded-lg bg-circuit px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60"
+            className="focus-ring inline-flex items-center gap-2 rounded-lg bg-circuit px-3 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60"
             name="mode"
             value="import"
             disabled={pending}
           >
             <Upload size={16} aria-hidden="true" />
-            Nhập dữ liệu
+            Nhập
           </button>
         </div>
       </form>

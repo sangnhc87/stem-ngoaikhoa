@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Download, LogOut, RadioTower } from "lucide-react";
+import { Download, LogOut, Monitor, RadioTower } from "lucide-react";
 import { logoutTeamAction } from "@/app/login/actions";
 import { KeyForm } from "@/app/play/key-form";
 import { getTeamContext } from "@/lib/game";
 import { getTeamSession } from "@/lib/security/session";
 import { statusLabel } from "@/lib/format";
+import { getActiveAnnouncements } from "@/lib/announcements";
+import { AnnouncementBanner } from "@/components/announcement-banner";
+import { CountdownTimer } from "@/components/countdown-timer";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +30,8 @@ export default async function PlayPage() {
   const completed = totalDoors > 0 && team.current_door > totalDoors;
   const canSubmit = isOpen && Boolean(challenge) && !completed;
 
+  const announcements = await getActiveAnnouncements(season.id);
+
   return (
     <main className="min-h-screen px-4 py-6 md:px-8">
       <div className="mx-auto max-w-6xl">
@@ -41,6 +46,9 @@ export default async function PlayPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            {season.end_time && isOpen && (
+              <CountdownTimer endTime={season.end_time} />
+            )}
             <Link
               href="/leaderboard"
               className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel"
@@ -56,6 +64,10 @@ export default async function PlayPage() {
             </form>
           </div>
         </header>
+
+        <div className="mt-4">
+          <AnnouncementBanner seasonId={season.id} initialAnnouncements={announcements} />
+        </div>
 
         <section className="mt-6 grid gap-5 md:grid-cols-[0.68fr_0.32fr]">
           <div className="rounded-xl border border-line bg-white p-6 shadow-soft">
@@ -76,7 +88,7 @@ export default async function PlayPage() {
 
             <div className="mt-6 h-3 overflow-hidden rounded-full bg-slate-200">
               <div
-                className="h-full rounded-full bg-circuit"
+                className="h-full rounded-full bg-circuit transition-all duration-500"
                 style={{
                   width: `${totalDoors ? Math.min(100, (team.solved / totalDoors) * 100) : 0}%`
                 }}
@@ -129,6 +141,25 @@ export default async function PlayPage() {
                 <dd className="mt-1 text-2xl font-bold text-signal">{team.current_door}</dd>
               </div>
             </dl>
+
+            <div className="mt-4 space-y-2 border-t border-line pt-4">
+              <Link
+                href="/leaderboard"
+                className="focus-ring flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm font-semibold text-ink hover:bg-panel"
+              >
+                <RadioTower size={15} aria-hidden="true" />
+                Xem bảng xếp hạng
+              </Link>
+              <a
+                href="/display"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="focus-ring flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm font-semibold text-ink hover:bg-panel"
+              >
+                <Monitor size={15} aria-hidden="true" />
+                Màn hình chiếu
+              </a>
+            </div>
           </aside>
         </section>
       </div>

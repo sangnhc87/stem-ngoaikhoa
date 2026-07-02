@@ -18,6 +18,8 @@ import {
   uuidSchema
 } from "@/lib/schemas";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { createAnnouncement, deactivateAnnouncement } from "@/lib/announcements";
+import type { Challenge } from "@/lib/types";
 
 export type AdminLoginState = {
   error?: string;
@@ -329,4 +331,97 @@ export async function importCsvAction(
       message: error instanceof Error ? error.message : "Không thể xử lý CSV."
     };
   }
+}
+
+export async function createAnnouncementAction(formData: FormData) {
+  await requireAdmin();
+  const seasonId = String(formData.get("season_id") ?? "");
+  const message = String(formData.get("message") ?? "").trim();
+  const expiresIn = formData.get("expires_in");
+  const parsedSeasonId = uuidSchema.safeParse(seasonId);
+
+  if (!parsedSeasonId.success || !message || message.length < 3) {
+    redirectToAdmin(seasonId, "announcement-invalid");
+  }
+
+  const expiresInMinutes = expiresIn ? parseInt(String(expiresIn), 10) : undefined;
+  const { error } = await createAnnouncement(
+    seasonId,
+    message,
+    Number.isInteger(expiresInMinutes) && expiresInMinutes! > 0 ? expiresInMinutes : undefined
+  );
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin");
+  redirectToAdmin(seasonId, "announcement-sent");
+}
+
+export async function deactivateAnnouncementAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const seasonId = String(formData.get("season_id") ?? "");
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) redirectToAdmin(seasonId, "announcement-invalid");
+
+  await deactivateAnnouncement(id);
+  revalidatePath("/admin");
+  redirectToAdmin(seasonId, "announcement-removed");
+}
+
+export async function cloneSeasonChallengesAction(formData: FormData) {
+  await requireAdmin();
+  const sourceSeasonId = String(formData.get("source_season_id") ?? "");
+  const targetSeasonId = String(formData.get("target_season_id") ?? "");
+  const parsedSource = uuidSchema.safeParse(sourceSeasonId);
+  const parsedTarget = uuidSchema.safeParse(targetSeasonId);
+
+  if (!parsedSource.success || !parsedTarget.success || sourceSeasonId === targetSeasonId) {
+    redirectToAdmin(targetSeasonId, "clone-invalid");
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  const { data: challenges, error: fetchError } = await supabase
+    .from("challenges")
+    .select("door, title, mission, difficulty, module, is_boss")
+    .eq("season_id", sourceSeasonId)
+    .order("door", { ascending: true });
+
+  if (fetchError) throw new Error(fetchError.message);
+  if (!challenges || challenges.length === 0) {
+    redirectToAdmin(targetSeasonId, "clone-empty");
+  }
+
+  const { data: existing } = await supabase
+    .from("challenges")
+    .select("door")
+    .eq("season_id", targetSeasonId);
+
+  const existingDoors = new Set((existing ?? []).map((c: { door: number }) => c.door));
+  const toInsert = (challenges as Omit<Challenge, "id" | "season_id" | "file_url" | "created_at">[]).filter(
+    (c) => !existingDoors.has(c.door)
+  );
+
+  if (toInsert.length === 0) {
+    redirectToAdmin(targetSeasonId, "clone-conflict");
+  }
+
+  const { error: insertError } = await supabase.from("challenges").insert(
+    toInsert.map((c) => ({
+      season_id: targetSeasonId,
+      door: c.door,
+      title: c.title,
+      mission: c.mission,
+      difficulty: c.difficulty,
+      module: c.module ?? null,
+      is_boss: c.is_boss,
+      file_url: null
+    }))
+  );
+
+  if (insertError) throw new Error(insertError.message);
+
+  revalidatePath("/admin");
+  redirectToAdmin(targetSeasonId, "clone-done");
 }

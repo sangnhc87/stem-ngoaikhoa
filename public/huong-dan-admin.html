@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hướng Dẫn Quản Trị Viên - AI Quest Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #00f2fe;
+      --primary-glow: rgba(0, 242, 254, 0.15);
+      --secondary: #4facfe;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --sidebar-width: 280px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(79, 172, 254, 0.05) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    /* Sidebar Styling */
+    aside {
+      width: var(--sidebar-width);
+      background: rgba(10, 15, 30, 0.8);
+      border-right: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .logo-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: #0b0f19;
+    }
+
+    .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-grow: 1;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .nav-item a:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .nav-item.active a {
+      color: var(--primary);
+      background: rgba(0, 242, 254, 0.06);
+      border-color: rgba(0, 242, 254, 0.15);
+      box-shadow: inset 0 0 12px rgba(0, 242, 254, 0.03);
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      transition: var(--transition);
+    }
+
+    .nav-item.active svg {
+      stroke: var(--primary);
+    }
+
+    .sidebar-footer {
+      padding-top: 1rem;
+      border-top: 1px solid var(--card-border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex-grow: 1;
+      padding: 3rem 4rem;
+      max-width: 1200px;
+    }
+
+    header {
+      margin-bottom: 3.5rem;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 30%, #a5f3fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      line-height: 1.6;
+    }
+
+    /* Content Sections */
+    .section-content {
+      display: none;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .section-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    h2::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(to bottom, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    p {
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Grid Layouts */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      backdrop-filter: blur(16px);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0, 242, 254, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top right, rgba(0, 242, 254, 0.03), transparent 50%);
+      pointer-events: none;
+    }
+
+    .card-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--primary);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Highlights / Callouts */
+    .callout {
+      background: rgba(0, 242, 254, 0.03);
+      border-left: 4px solid var(--primary);
+      border-radius: 4px 16px 16px 4px;
+      padding: 1.5rem;
+      margin: 1.5rem 0 2rem 0;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .callout.warning {
+      background: rgba(245, 158, 11, 0.03);
+      border-color: var(--warning);
+    }
+
+    .callout.success {
+      background: rgba(16, 185, 129, 0.03);
+      border-color: var(--accent);
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+    }
+
+    .callout-content h4 {
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    .callout-content p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    /* Code Blocks and CSV Templates */
+    .code-wrapper {
+      margin: 1.5rem 0;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+
+    .code-header {
+      background: rgba(10, 15, 30, 0.9);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .btn-copy {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-copy:hover {
+      color: var(--primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    pre {
+      background: rgba(7, 10, 20, 0.6);
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      color: #a5f3fc;
+      line-height: 1.5;
+    }
+
+    /* Steps List */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #0b0f19;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .step-body h3 {
+      font-size: 1.15rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0 2.5rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+
+    th, td {
+      padding: 1rem 1.25rem;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(10, 15, 30, 0.8);
+      font-weight: 600;
+      color: #ffffff;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      background: rgba(17, 24, 39, 0.3);
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.9rem;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Interactive Simulator */
+    .simulator-container {
+      background: rgba(10, 15, 30, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    input, select {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #0b0f19;
+      border: none;
+      padding: 0.85rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .preview-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      font-family: monospace;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #38bdf8;
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Sidebar -->
+  <aside>
+    <div>
+      <div class="logo-container">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v-2h2v2zm0-4h-2V9h2v3z"/>
+          </svg>
+        </div>
+        <div class="logo-text">AI QUEST ENGINE</div>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li class="nav-item active" data-target="overview">
+            <a href="#overview">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+                <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+                <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+              </svg>
+              Tổng Quan Hệ Thống
+            </a>
+          </li>
+          <li class="nav-item" data-target="setup-seasons">
+            <a href="#setup-seasons">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              1. Tạo Mùa Thi
+            </a>
+          </li>
+          <li class="nav-item" data-target="import-data">
+            <a href="#import-data">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+              </svg>
+              2. Nhập Dữ Liệu CSV
+            </a>
+          </li>
+          <li class="nav-item" data-target="run-contest">
+            <a href="#run-contest">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              3. Điều Hành Ngày Thi
+            </a>
+          </li>
+          <li class="nav-item" data-target="troubleshooting">
+            <a href="#troubleshooting">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              Khắc Phục Sự Cố
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div>AI Quest Engine v1.0</div>
+      <div style="margin-top: 0.25rem;">Hỗ trợ Giáo viên STEM</div>
+    </div>
+  </aside>
+
+  <!-- Main Content Container -->
+  <main>
+    <header>
+      <div class="badge">TÀI LIỆU QUẢN TRỊ</div>
+      <h1>Hướng Dẫn Quản Trị Hệ Thống</h1>
+      <p class="lead">Tài liệu tương tác giúp thầy/cô nắm bắt toàn bộ cách vận hành, cấu trúc và quản lý hệ thống AI Quest Engine một cách dễ dàng nhất.</p>
+    </header>
+
+    <!-- SECTION: Overview -->
+    <section id="overview" class="section-content active">
+      <h2>Tổng Quan Hệ Thống</h2>
+      <p>AI Quest Engine là nền tảng quản lý cuộc thi giải mật mã mật, được thiết kế tối ưu dành riêng cho các hoạt động ngoại khóa STEM của trường học. Hệ thống hoạt động dựa trên sự liên kết giữa hai phần chính:</p>
+      
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+          <div class="card-title">Ứng dụng Local (Next.js)</div>
+          <div class="card-text">Giao diện chạy trên máy tính của thầy/cô hoặc máy chủ cloud. Cung cấp trang đăng nhập học sinh (`/login`), trang theo dõi bảng xếp hạng (`/leaderboard`), màn hình máy chiếu (`/display`) và trang quản trị giáo viên (`/admin`).</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"></path>
+            </svg>
+          </div>
+          <div class="card-title">Cơ sở dữ liệu (Supabase)</div>
+          <div class="card-text">Hệ quản trị cơ sở dữ liệu trên đám mây. Lưu trữ toàn bộ dữ liệu về cấu trúc mùa giải, tài khoản đội thi, nội dung thử thách, danh sách đáp án đã được mã hóa và lịch sử nộp bài của học sinh.</div>
+        </div>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-icon">
+          <svg fill="currentColor" viewBox="0 0 20 20" style="color: var(--accent); width: 24px; height: 24px;">
+            <path fill-rule="evenodd" d="M2.166 11.37a.75.75 0 011.05-.182 8.49 8.49 0 0010.568 0 .75.75 0 11.916 1.18 9.99 9.99 0 01-12.352 0 .75.75 0 01-.182-1.048zM4.862 8.528a.75.75 0 011.04-.176 4.99 4.99 0 006.196 0 .75.75 0 11.908 1.19 6.49 6.49 0 01-8.064 0 .75.75 0 01-.18-1.014zm2.638-2.613a.75.75 0 011.015-.17 1.49 1.49 0 001.97 0 .75.75 0 11.984 1.133 2.99 2.99 0 01-3.954 0 .75.75 0 01-.17-1.015zM10 2a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="callout-content">
+          <h4>Thông tin Đăng Nhập Trang Quản Trị</h4>
+          <p>Mật khẩu trang <strong>`/admin`</strong> hiện tại của thầy/cô đã được đổi thành: <strong style="color: var(--primary); font-size: 1.1rem; font-family: monospace;">12348765</strong>. Hãy sử dụng mật khẩu này để truy cập trang quản lý.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Setup Seasons -->
+    <section id="setup-seasons" class="section-content">
+      <h2>Bước 1: Tạo Mùa Thi Mới</h2>
+      <p>Trước khi bắt đầu bất kỳ cuộc thi nào, việc đầu tiên là phải tạo cấu trúc cho một "Mùa thi". Mỗi mùa thi sẽ có một ID duy nhất để liên kết các bảng Đội chơi, Đề bài và Đáp án lại với nhau.</p>
+      
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h3>Đăng nhập trang quản trị</h3>
+            <p>Truy cập vào địa chỉ <strong>[http://localhost:3000/admin](http://localhost:3000/admin)</strong>, nhập mật khẩu quản lý mới là <strong>`12348765`</strong>.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h3>Tạo mùa thi</h3>
+            <p>Tại khối <strong>"Tạo mùa thi"</strong>, nhập các thông tin:</p>
+            <ul>
+              <li><strong>Tên mùa thi:</strong> Ví dụ: <code>AI Quest 2026: Lập Trình Robot</code></li>
+              <li><strong>Năm:</strong> Ví dụ: <code>2026</code></li>
+              <li><strong>Chủ đề:</strong> Ví dụ: <code>Vượt chướng ngại vật STEM</code></li>
+            </ul>
+            <p>Sau đó bấm <strong>Tạo mùa</strong>. Trạng thái mặc định của mùa mới sẽ là <code>Nháp</code> (DRAFT).</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h3>Lấy ID Mùa thi (season_id)</h3>
+            <p>Sau khi tạo xong mùa thi, hãy nhìn lên thanh địa chỉ của trình duyệt hoặc danh sách mùa thi để lấy mã <strong>`season_id`</strong>. Đây là một mã chữ và số ngẫu nhiên dài (UUID) dùng để điền vào các file CSV nhập dữ liệu.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Import Data -->
+    <section id="import-data" class="section-content">
+      <h2>Bước 2: Chuẩn Bị & Nhập Dữ Liệu CSV</h2>
+      <p>Hệ thống hỗ trợ nhập tự động danh sách Đội chơi, Đề bài thử thách và Đáp án thông qua file Excel lưu dưới định dạng <strong>CSV (Comma Separated Values)</strong>. Định dạng này sử dụng dấu phẩy làm dấu phân tách cột.</p>
+
+      <div class="callout warning">
+        <div class="callout-icon">
+          <svg fill="currentColor" viewBox="0 0 20 20" style="color: var(--warning); width: 24px; height: 24px;">
+            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="callout-content">
+          <h4>Quy Tắc Import Bắt Buộc</h4>
+          <p>Thầy/cô phải import theo đúng thứ tự logic sau: <strong>1. Import Đội thi (teams) $\rightarrow$ 2. Import Thử thách (challenges) $\rightarrow$ 3. Import Đáp án (answers)</strong>. Nếu làm sai thứ tự, hệ thống sẽ báo lỗi tham chiếu liên kết dữ liệu.</p>
+        </div>
+      </div>
+
+      <!-- Simulator Tool for creating template -->
+      <div class="simulator-container">
+        <h3 style="margin-bottom:1rem; color: #ffffff;">Trình tạo dòng CSV mẫu nhanh</h3>
+        <p style="font-size: 0.9rem;">Chọn loại dữ liệu cần xuất và nhập mã <code>season_id</code> của thầy/cô để tạo nhanh một dòng mẫu copy vào Excel.</p>
+        
+        <div class="grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label for="sim-season-id">Mã Season ID</label>
+            <input type="text" id="sim-season-id" value="f853dea1-4161-44f9-9b27-b1bf48a4ce4c">
+          </div>
+          <div class="form-group">
+            <label for="sim-type">Loại File CSV</label>
+            <select id="sim-type">
+              <option value="teams">1. Danh Sách Đội (teams.csv)</option>
+              <option value="challenges">2. Thử Thách (challenges.csv)</option>
+              <option value="answers">3. Khóa Đáp Án (answers.csv)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-action" onclick="generateCSVPreview()">
+          Tạo mã mẫu
+        </button>
+        
+        <div id="sim-preview" class="preview-box"></div>
+      </div>
+
+      <!-- Tabs or Subsections for files -->
+      <h3 style="margin: 2rem 0 1rem 0; color: #ffffff;">Chi tiết cấu trúc từng file</h3>
+      
+      <!-- Teams table -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">File 1: teams.csv (Nhập thông tin các đội)</div>
+        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">File này dùng để cấp tài khoản đăng nhập cho học sinh.</p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>teams.csv</span>
+            <button class="btn-copy" onclick="copyText('code-teams')">Copy</button>
+          </div>
+          <pre id="code-teams">season_id,team_id,team_name,password
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T01,Doi Sao Vang,123456
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T02,Doi Kim Dong,123456</pre>
+        </div>
+        <p style="font-size: 0.85rem;">* <code>password</code> là mật khẩu đăng nhập dạng thô (hệ thống sẽ tự mã hóa khi lưu vào cơ sở dữ liệu).</p>
+      </div>
+
+      <!-- Challenges table -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">File 2: challenges.csv (Nhập nội dung ải thử thách)</div>
+        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Khai báo nội dung các câu hỏi/nhiệm vụ cho từng cửa.</p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>challenges.csv</span>
+            <button class="btn-copy" onclick="copyText('code-challenges')">Copy</button>
+          </div>
+          <pre id="code-challenges">season_id,door,title,mission,file_url,difficulty,module,is_boss
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,1,Khoi dong he thong,Giai ma thong diep an o duoi gam ban,,1,Khoi dong,false
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,2,Cua logic robot,Tim to hop bit 1 va 0 de bat den xanh,,2,Logic,false
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,3,Thu thach Boss cuoi,Ket hop tat ca mat ma truoc do,,5,Boss,true</pre>
+        </div>
+        <p style="font-size: 0.85rem;">* <code>door</code> là số thứ tự ải (bắt đầu từ 1). <code>is_boss</code> đặt là <code>true</code> cho ải cuối cùng.</p>
+      </div>
+
+      <!-- Answers table -->
+      <div class="card">
+        <div class="card-title">File 3: answers.csv (Nhập khóa giải mã chuẩn)</div>
+        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Thiết lập đáp án chính xác cho từng đội ở mỗi cửa.</p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>answers.csv</span>
+            <button class="btn-copy" onclick="copyText('code-answers')">Copy</button>
+          </div>
+          <pre id="code-answers">season_id,team_id,door,key
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T01,1,KHOA-RIENG-T01-C1
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T01,2,KHOA-RIENG-T01-C2
+f853dea1-4161-44f9-9b27-b1bf48a4ce4c,T02,1,KHOA-RIENG-T02-C1</pre>
+        </div>
+        <p style="font-size: 0.85rem;">* Hệ thống hỗ trợ thiết lập mỗi đội một mã đáp án riêng biệt để chống gian lận chép bài.</p>
+      </div>
+    </section>
+
+    <!-- SECTION: Run Contest -->
+    <section id="run-contest" class="section-content">
+      <h2>Bước 3: Vận Hành Ngày Thi</h2>
+      <p>Khi mọi công tác chuẩn bị dữ liệu đã hoàn tất, thầy/cô sẽ tiến hành khởi động và theo dõi trận đấu:</p>
+
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h3>Chuẩn bị màn hình máy chiếu</h3>
+            <p>Mở đường dẫn <strong>[http://localhost:3000/display](http://localhost:3000/display)</strong> và chiếu lên màn chiếu lớn của phòng thi. Màn hình này hiển thị tiến trình của các đội và hiệu ứng pháo hoa chúc mừng thời gian thực khi có đội vượt cửa thành công.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h3>Kích hoạt trạng thái hoạt động</h3>
+            <p>Vào trang quản trị <strong>[http://localhost:3000/admin](http://localhost:3000/admin)</strong>, chọn mùa thi hiện tại và bấm nút chuyển trạng thái sang <strong>"Đang mở" (OPEN)</strong>. Kể từ lúc này, hệ thống mới chấp nhận các lượt nộp đáp án của học sinh.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h3>Theo dõi nhật ký nộp bài</h3>
+            <p>Trang quản trị hiển thị danh sách nộp bài trực tiếp (Realtime log). Nếu thấy đội chơi nào bị cảnh báo "nộp sai quá nhiều lần liên tiếp", thầy/cô có thể xuống hỗ trợ hoặc kiểm tra xem các em có đang gặp sự cố về thiết bị không.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number">4</div>
+          <div class="step-body">
+            <h3>Đóng cuộc thi</h3>
+            <p>Khi hết giờ làm bài, bấm nút chuyển trạng thái sang <strong>"Đã đóng" (CLOSED)</strong> trên trang admin để khóa cổng nộp bài và tiến hành tổng kết trao giải.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Troubleshooting -->
+    <section id="troubleshooting" class="section-content">
+      <h2>Khắc Phục Sự Cố Thường Gặp</h2>
+      
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 30%;">Hiện tượng / Lỗi</th>
+            <th style="width: 35%;">Nguyên nhân</th>
+            <th style="width: 35%;">Cách xử lý</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--warning); font-weight:600;">Lỗi "Dữ liệu đã tồn tại" khi import</td>
+            <td>Dữ liệu về mã đội hoặc cửa thi đó đã được ghi nhận trong mùa giải này từ trước.</td>
+            <td>Tạo một mùa thi mới hoàn toàn hoặc xoá bớt dữ liệu trùng lặp trong file CSV rồi import lại.</td>
+          </tr>
+          <tr>
+            <td style="color: var(--warning); font-weight:600;">Mã đội hoặc mật khẩu không đúng</td>
+            <td>Nhập sai mã đội, sai mật khẩu, hoặc dữ liệu chưa được nạp vào cơ sở dữ liệu.</td>
+            <td>Kiểm tra lại xem thầy/cô đã chạy lệnh nạp dữ liệu <code>pnpm seed</code> chưa hoặc kiểm tra mật khẩu trong file <code>teams.csv</code>.</td>
+          </tr>
+          <tr>
+            <td style="color: var(--warning); font-weight:600;">Học sinh nộp bài bị báo "Đợi 3 giây"</td>
+            <td>Chế độ chặn spam của hệ thống bắt đầu kích hoạt khi học sinh bấm nộp liên tục.</td>
+            <td>Nhắc nhở học sinh bình tĩnh, kiểm tra kỹ đáp án trước khi bấm nút nộp lại sau 3 giây.</td>
+          </tr>
+          <tr>
+            <td style="color: var(--warning); font-weight:600;">Không kết nối được server localhost</td>
+            <td>Dev server bị dừng hoạt động do đóng Terminal hoặc mất nguồn.</td>
+            <td>Mở Terminal chạy lại lệnh <code>pnpm dev</code> và giữ nguyên cửa sổ Terminal đó trong suốt quá trình diễn ra cuộc thi.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    // Tab switching logic
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.section-content');
+
+    navItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Remove active from all items
+        navItems.forEach(nav => nav.classList.remove('active'));
+        // Add active to clicked item
+        this.classList.add('active');
+
+        // Hide all sections
+        sections.forEach(sec => sec.classList.remove('active'));
+        
+        // Show target section
+        const targetId = this.getAttribute('data-target');
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.classList.add('active');
+        }
+      });
+    });
+
+    // Copy to clipboard helper
+    function copyText(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Đã sao chép nội dung vào khay nhớ tạm!");
+      }).catch(err => {
+        console.error("Không thể copy:", err);
+      });
+    }
+
+    // CSV Generator preview logic
+    function generateCSVPreview() {
+      const seasonId = document.getElementById('sim-season-id').value.trim();
+      const type = document.getElementById('sim-type').value;
+      const previewBox = document.getElementById('sim-preview');
+      
+      let header = '';
+      let row = '';
+      
+      if (type === 'teams') {
+        header = 'season_id,team_id,team_name,password';
+        row = `${seasonId},T01,Doi Sang Tao,123456`;
+      } else if (type === 'challenges') {
+        header = 'season_id,door,title,mission,file_url,difficulty,module,is_boss';
+        row = `${seasonId},1,Man chao hoi,Giai do vui,,1,Logic,false`;
+      } else {
+        header = 'season_id,team_id,door,key';
+        row = `${seasonId},T01,1,KHOA-CUA-1`;
+      }
+      
+      previewBox.innerText = `${header}\n${row}`;
+      previewBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

@@ -1,18 +1,26 @@
 import Link from "next/link";
 import {
   ArchiveRestore,
+  Copy,
   DoorOpen,
+  Download,
   LogOut,
+  Megaphone,
+  Monitor,
   Plus,
   RadioTower,
   ShieldCheck,
-  Upload
+  Upload,
+  X
 } from "lucide-react";
 import {
   adminLogoutAction,
+  cloneSeasonChallengesAction,
+  createAnnouncementAction,
   createChallengeAction,
   createSeasonAction,
   createTeamAction,
+  deactivateAnnouncementAction,
   resetSeasonAction,
   updateSeasonStatusAction,
   uploadChallengeFileAction
@@ -22,6 +30,7 @@ import { ImportPanel } from "@/app/admin/import-panel";
 import { getAdminDashboardData } from "@/lib/admin-data";
 import { formatDateTime, statusLabel } from "@/lib/format";
 import { getAdminSession } from "@/lib/security/session";
+import { getActiveAnnouncements } from "@/lib/announcements";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +50,14 @@ const noticeText: Record<string, string> = {
   "file-too-large": "Tệp quá lớn. Giới hạn hiện tại là 25MB.",
   "challenge-missing": "Không tìm thấy thử thách tương ứng.",
   "file-uploaded": "Đã tải tệp thử thách.",
-  "season-reset": "Đã đặt lại mùa thi về trạng thái nháp."
+  "season-reset": "Đã đặt lại mùa thi về trạng thái nháp.",
+  "announcement-sent": "Đã gửi thông báo đến tất cả đội.",
+  "announcement-removed": "Đã xóa thông báo.",
+  "announcement-invalid": "Thông báo không hợp lệ (quá ngắn hoặc thiếu mùa thi).",
+  "clone-done": "Đã sao chép thử thách sang mùa mới.",
+  "clone-empty": "Mùa nguồn chưa có thử thách nào.",
+  "clone-conflict": "Tất cả cửa đã tồn tại trong mùa đích.",
+  "clone-invalid": "Chọn hai mùa thi khác nhau."
 };
 
 const inputClass =
@@ -59,6 +75,18 @@ function StatusBadge({ status }: { status: string }) {
     <span className={`rounded-lg border px-3 py-1 text-sm font-bold ${className}`}>
       {statusLabel(status)}
     </span>
+  );
+}
+
+function StatCard({ label, value, tone = "ink" }: { label: string; value: number; tone?: "ink" | "circuit" | "warning" }) {
+  const valueClass =
+    tone === "circuit" ? "text-circuit" : tone === "warning" ? "text-warning" : "text-ink";
+
+  return (
+    <div className="rounded-xl border border-line bg-white p-4 shadow-soft">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className={`mt-1 text-2xl font-black ${valueClass}`}>{value}</p>
+    </div>
   );
 }
 
@@ -89,6 +117,10 @@ export default async function AdminPage({
   const data = await getAdminDashboardData(params.season_id);
   const { selectedSeason } = data;
 
+  const announcements = selectedSeason
+    ? await getActiveAnnouncements(selectedSeason.id)
+    : [];
+
   return (
     <main className="min-h-screen px-4 py-6 md:px-8">
       <div className="mx-auto max-w-7xl">
@@ -100,6 +132,23 @@ export default async function AdminPage({
             <h1 className="mt-2 text-3xl font-bold text-ink">AI Quest Engine</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/huong-dan-admin.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel"
+            >
+              Hướng dẫn
+            </a>
+            {selectedSeason && (
+              <Link
+                href={`/monitor?season_id=${selectedSeason.id}`}
+                className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel"
+              >
+                <Monitor size={17} aria-hidden="true" />
+                Màn hình BGK
+              </Link>
+            )}
             <Link
               href="/leaderboard"
               className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel"
@@ -115,6 +164,23 @@ export default async function AdminPage({
             </form>
           </div>
         </header>
+
+        {selectedSeason ? (
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard label="Tổng số đội" value={data.teams.length} />
+            <StatCard label="Số cửa" value={data.challenges.length} />
+            <StatCard
+              label="Lượt nộp sai"
+              value={data.teams.reduce((acc, t) => acc + t.wrong_count, 0)}
+              tone="warning"
+            />
+            <StatCard
+              label="Cửa đã giải"
+              value={data.teams.reduce((acc, t) => acc + t.solved, 0)}
+              tone="circuit"
+            />
+          </div>
+        ) : null}
 
         {params.notice ? (
           <p className="mt-4 rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-800">
@@ -171,6 +237,34 @@ export default async function AdminPage({
                 </button>
               </form>
             </section>
+
+            {data.seasons.length >= 2 && selectedSeason && (
+              <section className="rounded-xl border border-line bg-white p-5 shadow-soft">
+                <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+                  <Copy size={17} aria-hidden="true" />
+                  Sao chép thử thách
+                </h2>
+                <p className="mt-1 text-xs leading-5 text-slate-600">
+                  Sao chép thử thách từ mùa cũ sang mùa hiện tại, không sao chép đáp án.
+                </p>
+                <form action={cloneSeasonChallengesAction} className="mt-3 grid gap-2">
+                  <input type="hidden" name="target_season_id" value={selectedSeason.id} />
+                  <select className={`${inputClass} text-sm`} name="source_season_id" required>
+                    <option value="">-- Chọn mùa nguồn --</option>
+                    {data.seasons
+                      .filter((s) => s.id !== selectedSeason.id)
+                      .map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.year ?? "?"})
+                        </option>
+                      ))}
+                  </select>
+                  <button className="focus-ring rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                    Sao chép thử thách
+                  </button>
+                </form>
+              </section>
+            )}
           </aside>
 
           <div className="space-y-5">
@@ -205,8 +299,66 @@ export default async function AdminPage({
                           Reset
                         </button>
                       </form>
+                      <a
+                        href={`/api/export?season_id=${selectedSeason.id}`}
+                        className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-panel"
+                        download
+                      >
+                        <Download size={16} aria-hidden="true" />
+                        Xuất kết quả
+                      </a>
                     </div>
                   </div>
+                </section>
+
+                <section className="rounded-xl border border-line bg-white p-5 shadow-soft">
+                  <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+                    <Megaphone size={18} aria-hidden="true" />
+                    Thông báo đến đội thi
+                  </h2>
+                  <form action={createAnnouncementAction} className="mt-3 grid gap-2 md:grid-cols-[1fr_auto_auto]">
+                    <input type="hidden" name="season_id" value={selectedSeason.id} />
+                    <input
+                      className={inputClass}
+                      name="message"
+                      placeholder="Nội dung thông báo..."
+                      required
+                      minLength={3}
+                    />
+                    <select
+                      className={inputClass}
+                      name="expires_in"
+                    >
+                      <option value="">Không hết hạn</option>
+                      <option value="15">15 phút</option>
+                      <option value="30">30 phút</option>
+                      <option value="60">1 giờ</option>
+                    </select>
+                    <button className="focus-ring rounded-lg bg-circuit px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800">
+                      Gửi
+                    </button>
+                  </form>
+
+                  {announcements.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {announcements.map((ann) => (
+                        <div key={ann.id} className="flex items-start gap-2 rounded-lg border border-line bg-panel px-3 py-2">
+                          <p className="flex-1 text-sm leading-6 text-ink">{ann.message}</p>
+                          <form action={deactivateAnnouncementAction}>
+                            <input type="hidden" name="id" value={ann.id} />
+                            <input type="hidden" name="season_id" value={selectedSeason.id} />
+                            <button
+                              className="rounded-md p-1 text-slate-500 hover:bg-white hover:text-warning"
+                              title="Xóa thông báo"
+                              aria-label="Xóa thông báo"
+                            >
+                              <X size={15} aria-hidden="true" />
+                            </button>
+                          </form>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
 
                 <section className="grid gap-5 xl:grid-cols-2">
@@ -214,7 +366,7 @@ export default async function AdminPage({
                     <h2 className="text-xl font-bold text-ink">Tạo đội</h2>
                     <form action={createTeamAction} className="mt-4 grid gap-3 md:grid-cols-2">
                       <input type="hidden" name="season_id" value={selectedSeason.id} />
-                      <input className={inputClass} name="team_id" placeholder="Mã đội" required />
+                      <input className={inputClass} name="team_id" placeholder="Mã đội (VD: 10A1)" required />
                       <input
                         className={inputClass}
                         name="team_name"
@@ -321,7 +473,7 @@ export default async function AdminPage({
                                 </span>
                               ) : null}
                             </td>
-                            <td className="px-3 py-3">{challenge.module ?? "-"}</td>
+                            <td className="px-3 py-3">{challenge.module ?? "—"}</td>
                             <td className="px-3 py-3">{challenge.difficulty}</td>
                             <td className="max-w-64 truncate px-3 py-3">
                               {challenge.file_url ? (
@@ -329,7 +481,7 @@ export default async function AdminPage({
                                   Đã có tệp
                                 </a>
                               ) : (
-                                "-"
+                                "—"
                               )}
                             </td>
                             <td className="px-3 py-3">
@@ -357,9 +509,9 @@ export default async function AdminPage({
                 </section>
 
                 <section className="grid gap-5 xl:grid-cols-3">
-                  <ImportPanel type="teams" />
-                  <ImportPanel type="challenges" />
-                  <ImportPanel type="answers" />
+                  <ImportPanel type="teams" seasonId={selectedSeason.id} />
+                  <ImportPanel type="challenges" seasonId={selectedSeason.id} />
+                  <ImportPanel type="answers" seasonId={selectedSeason.id} />
                 </section>
 
                 <section className="grid gap-5 xl:grid-cols-[0.4fr_0.6fr]">
@@ -405,7 +557,17 @@ export default async function AdminPage({
                               <td className="px-3 py-2">{formatDateTime(submission.created_at)}</td>
                               <td className="px-3 py-2 font-semibold">{submission.team_id}</td>
                               <td className="px-3 py-2">{submission.door}</td>
-                              <td className="px-3 py-2">{submission.result}</td>
+                              <td className="px-3 py-2">
+                                <span className={
+                                  submission.result === "correct"
+                                    ? "font-bold text-emerald-700"
+                                    : submission.result === "wrong"
+                                      ? "text-red-600"
+                                      : "text-slate-500"
+                                }>
+                                  {submission.result}
+                                </span>
+                              </td>
                             </tr>
                           ))}
                         </tbody>

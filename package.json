@@ -12,8 +12,8 @@
     "setup:local": "tsx scripts/setup-local.ts",
     "check:env": "tsx scripts/setup-local.ts",
     "setup:supabase": "tsx scripts/print-supabase-setup.ts",
-    "seed": "tsx scripts/seed.ts",
-    "test:flow": "tsx scripts/test-local-flow.ts"
+    "seed": "NODE_OPTIONS='--experimental-websocket' tsx scripts/seed.ts",
+    "test:flow": "NODE_OPTIONS='--experimental-websocket' tsx scripts/test-local-flow.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
